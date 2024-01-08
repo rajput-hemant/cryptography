@@ -7,9 +7,13 @@
     "compile": "bun build src/index.ts --compile --outfile crypto",
     "type-check": "tsc"
   },
-  "dependencies": {},
+  "dependencies": {
+    "kolorist": "^1.8.0",
+    "prompts": "^2.4.2"
+  },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/prompts": "^2.4.9",
     "prettier": "^3.1.1"
   },
   "peerDependencies": {
