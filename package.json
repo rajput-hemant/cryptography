@@ -1,0 +1,19 @@
+{
+  "name": "cryptography",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "compile": "bun build src/index.ts --compile --outfile crypto",
+    "type-check": "tsc"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.1.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "prettier": {}
+}
