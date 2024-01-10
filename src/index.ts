@@ -1,15 +1,19 @@
 import prompts from "prompts";
-import { lightBlue, lightGreen, red, reset } from "kolorist";
+import colors from "picocolors";
 
 import { algorithms } from "./lib/constants";
 
 async function init() {
+  console.clear();
+
+  console.log(`${colors.bgBlue(colors.bold("Cryptographer"))}\n`);
+
   try {
     const { algorithm } = await prompts(
       {
         type: "select",
         name: "algorithm",
-        message: reset("Select an algorithm"),
+        message: colors.reset("Select an algorithm"),
         choices: algorithms.map(({ name: value, title, description }) => ({
           title,
           value,
@@ -18,7 +22,7 @@ async function init() {
       },
       {
         onCancel() {
-          throw new Error(red("✖") + " Operation cancelled");
+          throw new Error(colors.red("✖") + " Operation cancelled");
         },
       },
     );
@@ -26,18 +30,22 @@ async function init() {
     const selectedAlgo = algorithms.find((a) => a.name === algorithm)!;
 
     console.log(
-      `\n${lightBlue("Algorithm:")} ${lightGreen(selectedAlgo.title)}\n`,
+      `\n${colors.blue("Algorithm:")} ${colors.green(selectedAlgo.title)}\n`,
     );
 
     await selectedAlgo.handler();
 
-    return;
+    console.log(
+      `\nSee a Problem? Open an issue at ${colors.underline(
+        colors.cyan("https://github.com/rajput-hemant/cryptography/issues"),
+      )}`,
+    );
+
+    process.exit(0);
   } catch (cancelled: any) {
     console.log(cancelled.message);
     return;
   }
 }
 
-init().catch((e) => {
-  console.error(e);
-});
+init().catch(console.error);

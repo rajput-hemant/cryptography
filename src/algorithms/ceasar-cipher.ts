@@ -1,5 +1,5 @@
-import { blue, green, red } from "kolorist";
 import prompts from "prompts";
+import colors from "picocolors";
 
 import { capitalize } from "../lib/utils";
 
@@ -19,6 +19,8 @@ export async function ceasarCipher() {
           type: "number",
           name: "shift",
           message: "Enter the shift",
+          min: 1,
+          max: 26,
           validate: (v) => (v ? true : "Please enter a shift"),
         },
         {
@@ -33,14 +35,18 @@ export async function ceasarCipher() {
       ],
       {
         onCancel() {
-          throw new Error(red("✖") + " Operation cancelled");
+          throw new Error(colors.red("✖") + " Operation cancelled");
         },
       },
     );
 
     const result = crypt(text, shift, action);
 
-    console.log(`${blue(capitalize(action)) + "ed text"}: ${green(result)}`);
+    console.log(
+      `\n${colors.yellow(capitalize(action) + "ed text")}: ${colors.green(
+        result,
+      )}`,
+    );
 
     return;
   } catch (cancelled: any) {
@@ -63,7 +69,7 @@ function crypt(text: string, shift: number, action: "encrypt" | "decrypt") {
         (action === "encrypt" ? charIndex + shift : charIndex - shift) %
         ALPHABET.length;
 
-      return ALPHABET[newIndex!];
+      return ALPHABET.at(newIndex);
     })
     .join("");
 }
