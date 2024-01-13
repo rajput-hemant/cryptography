@@ -1,13 +1,13 @@
 import prompts from "prompts";
 import colors from "picocolors";
 
-import { capitalize, onCancel } from "../lib/utils";
+import { capitalize, onCancel, readFile } from "../lib/utils";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
 export async function ceasarCipher() {
   try {
-    const { text, shift, action, cipherText, plainText } = await prompts(
+    let { action, text, shift, cipherText, plainText } = await prompts(
       [
         {
           type: "select",
@@ -19,10 +19,12 @@ export async function ceasarCipher() {
             { title: "Brute Force", value: "bruteForce" },
           ],
         },
+        // encypt/decrypt
         {
           type: (prev) => (prev === "bruteForce" ? null : "text"),
           name: "text",
-          message: "Enter your text",
+          message: "Enter your text or a relative path to a file",
+          hint: "e.g. ./text.txt",
           validate,
         },
         {
@@ -33,16 +35,19 @@ export async function ceasarCipher() {
           max: 25,
           validate: (v) => (v ? true : "Please enter a shift"),
         },
+        // brute force
         {
           type: (_, values) => (values.action === "bruteForce" ? "text" : null),
           name: "cipherText",
-          message: "Enter the cipher text",
+          message: "Enter the cipher text or a relative path to a file",
+          hint: "e.g. ./cipher.txt",
           validate,
         },
         {
           type: (_, values) => (values.action === "bruteForce" ? "text" : null),
           name: "plainText",
-          message: "Enter the plain text",
+          message: "Enter the plain text or a relative path to a file",
+          hint: "e.g. ./plain.txt",
           validate,
         },
       ],
@@ -50,6 +55,14 @@ export async function ceasarCipher() {
     );
 
     if (action === "bruteForce") {
+      if (cipherText.startsWith("./")) {
+        cipherText = await readFile(cipherText);
+      }
+
+      if (plainText.startsWith("./")) {
+        plainText = await readFile(plainText);
+      }
+
       const result = bruteForce(plainText, cipherText);
 
       if (result === -1) {
@@ -63,6 +76,10 @@ export async function ceasarCipher() {
       }
 
       return;
+    }
+
+    if (text.startsWith("./")) {
+      text = await readFile(text);
     }
 
     const result = crypt(text, shift, action);
@@ -119,12 +136,24 @@ function bruteForce(plainText: string, cipherText: string) {
   return -1;
 }
 
-function validate(value: string) {
+async function validate(value: string) {
   if (!value) {
     return "Please enter some text";
   }
 
-  if (!value.match(/^[a-zA-Z]+$/)) {
+  if (value.startsWith("./")) {
+    if (value.length === 2) {
+      return "Please enter a path";
+    }
+
+    const pathExists = await Bun.file(value).exists();
+
+    if (!pathExists) {
+      return "The path you provided doesn't exist.";
+    }
+  }
+
+  if (!value.match(/^(.\/)?[a-zA-Z]+(.*)?$/)) {
     return "Please enter a text with only letters";
   }
 
