@@ -1,4 +1,5 @@
 import colors from "picocolors";
+import fs from "fs/promises";
 
 /**
  * Capitalize the first letter of a string
@@ -23,7 +24,29 @@ export async function readFile(path: string) {
     throw new Error("No file path provided");
   }
 
-  return await Bun.file(path).text();
+  if (process.versions.bun) {
+    return await Bun.file(path).text();
+  }
+
+  return await fs.readFile(path, "utf-8");
+}
+
+/**
+ * Check if a file exists
+ * @param path Relative path to the file
+ * @returns Whether the file exists or not
+ */
+export async function checkFileExists(path: string) {
+  if (process.versions.bun) {
+    return await Bun.file(path).exists();
+  }
+
+  try {
+    const stats = await fs.stat(path);
+    return stats.isFile();
+  } catch {
+    return false;
+  }
 }
 
 /**

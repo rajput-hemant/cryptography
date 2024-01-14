@@ -1,7 +1,7 @@
 import prompts from "prompts";
 import colors from "picocolors";
 
-import { capitalize, onCancel, readFile } from "../lib/utils";
+import { capitalize, checkFileExists, onCancel, readFile } from "../lib/utils";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
@@ -146,7 +146,7 @@ async function validate(value: string) {
       return "Please enter a path";
     }
 
-    const pathExists = await Bun.file(value).exists();
+    const pathExists = await checkFileExists(value);
 
     if (!pathExists) {
       return "The path you provided doesn't exist.";
