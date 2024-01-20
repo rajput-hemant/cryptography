@@ -3,11 +3,9 @@ import colors from "picocolors";
 
 import { capitalize, checkFileExists, onCancel, readFile } from "../lib/utils";
 
-const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
-
-export async function ceasarCipher() {
+export async function autoKeyCipher() {
   try {
-    let { action, text, shift, cipherText, plainText } = await prompts(
+    let { action, text, key, cipherText, plainText } = await prompts(
       [
         {
           type: "select",
@@ -29,11 +27,11 @@ export async function ceasarCipher() {
         },
         {
           type: (prev) => (prev === "bruteForce" ? null : "number"),
-          name: "shift",
-          message: "Enter the shift",
+          name: "key",
+          message: "Enter the key",
           min: 1,
           max: 25,
-          validate: (v) => (v ? true : "Please enter a shift"),
+          validate: (v) => (v ? true : "Please enter a key"),
         },
         // brute force
         {
@@ -68,11 +66,11 @@ export async function ceasarCipher() {
       if (result === -1) {
         console.log(
           `\n${colors.red("Error:")} ${colors.yellow(
-            "Couldn't find the shift",
+            "Couldn't find the key",
           )}\n`,
         );
       } else {
-        console.log(`\n${colors.yellow("Shift")}: ${colors.green(result)}\n`);
+        console.log(`\n${colors.yellow("Key")}: ${colors.green(result)}\n`);
       }
 
       return;
@@ -82,7 +80,7 @@ export async function ceasarCipher() {
       text = await readFile(text);
     }
 
-    const result = crypt(text, shift, action);
+    const result = crypt(text, key, action);
 
     console.log(
       `\n${colors.yellow(`${capitalize(action)}ed text`)}: ${colors.green(
@@ -97,43 +95,44 @@ export async function ceasarCipher() {
   }
 }
 
-function crypt(text: string, shift: number, action: "encrypt" | "decrypt") {
-  return text
-    .split("")
-    .map((char) => {
-      const charIndex = ALPHABET.indexOf(char.toLowerCase());
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
-      if (charIndex === -1) {
-        return char;
+function crypt(text: string, key: number, action: "encrypt" | "decrypt") {
+  return text.split("").reduce((acc, char, i) => {
+    const charIndex = ALPHABET.indexOf(char.toLowerCase());
+
+    if (charIndex === -1) {
+      return acc + char;
+    }
+
+    let newIndex: number;
+
+    if (action === "encrypt") {
+      if (i === 0) {
+        newIndex = (charIndex + key) % 26;
+      } else {
+        const prevCharIndex = ALPHABET.indexOf(text[i - 1].toLowerCase());
+        newIndex = (charIndex + prevCharIndex) % 26;
       }
+    } else {
+      if (i === 0) {
+        newIndex = (charIndex - key) % 26;
+      } else {
+        const prevCharIndex = ALPHABET.indexOf(acc[i - 1].toLowerCase());
+        newIndex = (charIndex - prevCharIndex) % 26;
+      }
+    }
 
-      const newIndex =
-        (action === "encrypt" ? charIndex + shift : charIndex - shift) %
-        ALPHABET.length;
-
-      return ALPHABET.at(newIndex);
-    })
-    .join("");
+    return acc + ALPHABET.at(newIndex);
+  }, "");
 }
 
 function bruteForce(plainText: string, cipherText: string) {
-  for (let i = 0; i < ALPHABET.length; i++) {
-    let s1 = "";
-
-    for (let j = 0; j < cipherText.length; j++) {
-      const c = cipherText[j];
-      const a = ALPHABET.indexOf(c);
-      const newChar = ALPHABET.at(a - i);
-
-      s1 += newChar;
-    }
-
-    if (s1 === plainText) {
-      return i;
-    }
-  }
-
-  return -1;
+  return (
+    Array.from({ length: 25 }, (_, i) => i + 1).find(
+      (i) => crypt(cipherText, i, "decrypt") === plainText,
+    ) ?? -1
+  );
 }
 
 async function validate(value: string) {
