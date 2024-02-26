@@ -56,3 +56,22 @@ export function onCancel() {
   console.log(colors.red("✖") + " Operation cancelled");
   process.exit(0);
 }
+
+/**
+ * Find the greatest common divisor of two numbers
+ * @param x
+ * @param y
+ * @returns Greatest common divisor
+ */
+export function gcd(x: number, y: number) {
+  x = Math.abs(x);
+  y = Math.abs(y);
+
+  while (y) {
+    var t = y;
+    y = x % y;
+    x = t;
+  }
+
+  return x;
+}

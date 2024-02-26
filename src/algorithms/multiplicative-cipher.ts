@@ -1,7 +1,13 @@
 import prompts from "prompts";
 import colors from "picocolors";
 
-import { capitalize, checkFileExists, onCancel, readFile } from "../lib/utils";
+import {
+  capitalize,
+  checkFileExists,
+  gcd,
+  onCancel,
+  readFile,
+} from "../lib/utils";
 
 export async function multiplicativeCipher() {
   try {
@@ -31,7 +37,17 @@ export async function multiplicativeCipher() {
           message: "Enter the key",
           min: 1,
           max: 25,
-          validate: (v) => (v ? true : "Please enter a key"),
+          validate: (v) => {
+            if (!v) {
+              return "Please enter a key";
+            }
+
+            if (gcd(v, 26) !== 1) {
+              return "Invalid key. Can't find the multiplicative inverse";
+            }
+
+            return true;
+          },
         },
         // brute force
         {
