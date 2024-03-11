@@ -2,6 +2,7 @@ import {
   ceasarCipher,
   multiplicativeCipher,
   autoKeyCipher,
+  playfairCipher,
 } from "../algorithms";
 
 type Algorithm = {
@@ -32,5 +33,12 @@ export const algorithms: Algorithm[] = [
     description:
       "\nIt is an encryption algorithm that uses multiplication to transform the plaintext. It is a type of substitution cipher where each letter in the plaintext is replaced with a letter obtained by multiplying its numerical equivalent by a constant factor.\n",
     handler: multiplicativeCipher,
+  },
+  {
+    name: "playfair-cipher",
+    title: "Playfair Cipher",
+    description:
+      "\nIt is a manual symmetric encryption technique and was the first literal digraph substitution cipher. The scheme was invented in 1854 by Charles Wheatstone, but bears the name of Lord Playfair for promoting its use.\n",
+    handler: playfairCipher,
   },
 ];
