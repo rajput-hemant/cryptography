@@ -51,12 +51,12 @@ export async function playfairCipher() {
 
     const plafairMatrix = constructPlayfairMatrix(key);
     const diagraphs = plainTextToDiagraphs(text);
-    
+
     const result = crypt(plafairMatrix, text, diagraphs, action);
 
     console.log(
       `\n${colors.yellow(`${capitalize(action)}ed text`)}: ${colors.green(
-        result.replace(/X/g, ""),
+        result,
       )}\n`,
     );
 
@@ -182,32 +182,23 @@ function crypt(
     let newFirst = "",
       newSecond = "";
 
-    // same row
     if (firstRow === secondRow) {
-      // shift the first char right for encryption, left for decryption
-      newFirst =
-        matrix[firstRow][(firstCol + (action === "encrypt" ? 1 : -1)) % 5];
+      newFirst = matrix
+        .at(firstRow)!
+        .at((firstCol + (action === "encrypt" ? 1 : -1)) % 5)!;
 
-      // shift the second char right for encryption, left for decryption
-      newSecond =
-        matrix[secondRow][(secondCol + (action === "encrypt" ? 1 : -1)) % 5];
-    }
-    // same column
-    else if (firstCol === secondCol) {
-      // shift the first char down for encryption, up for decryption
-      newFirst =
-        matrix[(firstRow + (action === "encrypt" ? 1 : -1) + 5) % 5][firstCol];
-      // shift the second char down for encryption, up for decryption
-      newSecond =
-        matrix[(secondRow + (action === "encrypt" ? 1 : -1) + 5) % 5][
-          secondCol
-        ];
-    }
-    // different row and column
-    else {
-      // swap the columns of the two chars
+      newSecond = matrix
+        .at(secondRow)!
+        .at((secondCol + (action === "encrypt" ? 1 : -1)) % 5)!;
+    } else if (firstCol === secondCol) {
+      newFirst = matrix
+        .at((firstRow + (action === "encrypt" ? 1 : -1)) % 5)!
+        .at(firstCol)!;
+      newSecond = matrix
+        .at((secondRow + (action === "encrypt" ? 1 : -1)) % 5)!
+        .at(secondCol)!;
+    } else {
       newFirst = matrix[firstRow][secondCol];
-      // swap the rows of the two chars
       newSecond = matrix[secondRow][firstCol];
     }
 
@@ -218,13 +209,8 @@ function crypt(
 }
 
 function findPosition(matrix: string[][], char: string) {
-  for (let i = 0; i < 5; i++) {
-    for (let j = 0; j < 5; j++) {
-      if (matrix[i][j] === char) {
-        return [i, j];
-      }
-    }
-  }
+  const row = matrix.findIndex((r) => r.includes(char));
+  const col = matrix[row].findIndex((c) => c === char);
 
-  return [-1, -1];
+  return [row, col];
 }
