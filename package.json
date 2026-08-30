@@ -17,8 +17,8 @@
     "@types/bun": "latest",
     "@types/minimist": "^1.2.5",
     "@types/prompts": "^2.4.9",
-    "prettier": "^3.8.1",
-    "tsx": "^4.21.0"
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.13"
   },
   "peerDependencies": {
     "typescript": "^5.3.3"
